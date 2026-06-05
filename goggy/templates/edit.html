@@ -5,31 +5,36 @@
     <h1>{{ t('edit_post') if post else t('new_post') }}</h1>
     <form method="post" action="{{ action }}" id="post-form">
       <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-      <label for="title">{{ t('title') }}</label>
-      <input type="text" id="title" name="title" required dir="auto"
-             value="{{ post.title if post else '' }}">
 
-      <div class="field-row">
-        <div class="field">
-          <label for="tags">{{ t('tags_label') }}</label>
-          <input type="text" id="tags" name="tags" dir="auto"
-                 value="{{ post.tags | join(', ') if post else '' }}">
-        </div>
-        <div class="field">
-          <label for="publish_at">{{ t('publish_at_label') }}</label>
-          <input type="datetime-local" id="publish_at" name="publish_at"
-                 value="{{ post.publish_at.strftime('%Y-%m-%dT%H:%M') if post else '' }}">
-        </div>
-        <div class="field check">
-          <label for="draft">{{ t('draft') }}</label>
-          <input type="checkbox" id="draft" name="draft" value="true"
-                 {{ 'checked' if post and post.draft else '' }}>
+      <div class="meta-fields" id="meta-fields">
+        <label for="title">{{ t('title') }}</label>
+        <input type="text" id="title" name="title" required dir="auto"
+               value="{{ post.title if post else '' }}">
+
+        <div class="field-row">
+          <div class="field">
+            <label for="tags">{{ t('tags_label') }}</label>
+            <input type="text" id="tags" name="tags" dir="auto"
+                   value="{{ post.tags | join(', ') if post else '' }}">
+          </div>
+          <div class="field">
+            <label for="publish_at">{{ t('publish_at_label') }}</label>
+            <input type="datetime-local" id="publish_at" name="publish_at"
+                   value="{{ post.publish_at.strftime('%Y-%m-%dT%H:%M') if post else '' }}">
+          </div>
+          <div class="field check">
+            <label for="draft">{{ t('draft') }}</label>
+            <input type="checkbox" id="draft" name="draft" value="true"
+                   {{ 'checked' if post and post.draft else '' }}>
+          </div>
         </div>
       </div>
 
       <div class="editor-toolbar">
         <label for="image-input" class="upload-btn">{{ t('insert_image') }}</label>
         <input type="file" id="image-input" accept="image/*" hidden>
+        <button type="button" id="meta-toggle" class="ghost-btn"
+                data-hide="{{ t('hide_fields') }}" data-show="{{ t('show_fields') }}">{{ t('hide_fields') }}</button>
         <button type="button" id="fullscreen-toggle" class="ghost-btn"
                 data-on="{{ t('fullscreen') }}" data-off="{{ t('exit_fullscreen') }}">{{ t('fullscreen') }}</button>
         <span id="upload-status" class="upload-status"></span>

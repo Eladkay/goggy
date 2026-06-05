@@ -107,9 +107,12 @@ check("disguised non-image rejected (sniff)", up_bad.status_code == 400)
 # --- Editor: paste + fullscreen present ---
 ef = admin.get("/admin/new").text
 check("fullscreen toggle in editor", 'id="fullscreen-toggle"' in ef)
+check("collapsible meta fields wrapper", 'id="meta-fields"' in ef)
+check("hide-fields toggle present", 'id="meta-toggle"' in ef)
 check("paste hint shown", "Ctrl/Cmd+V" in ef or "Ctrl" in ef)
 js = admin.get("/static/editor.js").text
 check("paste handler in editor.js", 'addEventListener("paste"' in js)
+check("scroll sync in editor.js", "linkScroll(body, preview)" in js)
 
 # cleanup
 for p in config.POSTS_DIR.glob("*.md"):

@@ -6,6 +6,8 @@
   const imageInput = document.getElementById("image-input");
   const uploadStatus = document.getElementById("upload-status");
   const fsToggle = document.getElementById("fullscreen-toggle");
+  const metaToggle = document.getElementById("meta-toggle");
+  const metaFields = document.getElementById("meta-fields");
   const root = document.getElementById("editor-root");
   const csrf = document.querySelector('meta[name="csrf-token"]').content;
 
@@ -66,9 +68,30 @@
     }
   }
 
+  // Keep the textarea and the preview scrolled to the same relative position so
+  // the two panes track each other. Proportional (not line-exact) but matches
+  // closely for typical posts. A lock flag prevents the scroll events from
+  // ping-ponging off each other.
+  let scrollLock = false;
+  function linkScroll(src, dst) {
+    src.addEventListener("scroll", function () {
+      if (scrollLock) return;
+      const srcMax = src.scrollHeight - src.clientHeight;
+      if (srcMax <= 0) return;
+      const dstMax = dst.scrollHeight - dst.clientHeight;
+      scrollLock = true;
+      dst.scrollTop = (src.scrollTop / srcMax) * dstMax;
+      requestAnimationFrame(function () {
+        scrollLock = false;
+      });
+    });
+  }
+
   if (body && preview) {
     body.addEventListener("input", schedulePreview);
     renderPreview();
+    linkScroll(body, preview);
+    linkScroll(preview, body);
 
     // Ctrl/Cmd+V of an image anywhere in the body uploads + inserts it inline.
     body.addEventListener("paste", function (ev) {
@@ -94,11 +117,26 @@
     });
   }
 
+  function setMetaCollapsed(collapsed) {
+    if (!metaFields || !metaToggle) return;
+    metaFields.classList.toggle("collapsed", collapsed);
+    metaToggle.textContent = collapsed ? metaToggle.dataset.show : metaToggle.dataset.hide;
+  }
+
+  if (metaToggle && metaFields) {
+    metaToggle.addEventListener("click", function () {
+      setMetaCollapsed(!metaFields.classList.contains("collapsed"));
+    });
+  }
+
   if (fsToggle && root) {
     fsToggle.addEventListener("click", function () {
       const on = root.classList.toggle("fullscreen");
       document.body.classList.toggle("editor-fullscreen", on);
       fsToggle.textContent = on ? fsToggle.dataset.off : fsToggle.dataset.on;
+      // Maximize writing space: collapse the meta fields on entering fullscreen,
+      // restore them on exit.
+      setMetaCollapsed(on);
     });
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape" && root.classList.contains("fullscreen")) {

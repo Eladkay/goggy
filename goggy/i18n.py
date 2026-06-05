@@ -70,6 +70,8 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "cancel": "Cancel",
         "fullscreen": "Fullscreen",
         "exit_fullscreen": "Exit fullscreen",
+        "hide_fields": "Hide fields",
+        "show_fields": "Show fields",
         # revisions
         "revision_history": "Revision history",
         "no_revisions": "No earlier versions — this post hasn't been edited yet.",
@@ -160,6 +162,8 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "cancel": "ביטול",
         "fullscreen": "מסך מלא",
         "exit_fullscreen": "יציאה ממסך מלא",
+        "hide_fields": "הסתר שדות",
+        "show_fields": "הצג שדות",
         "revision_history": "היסטוריית גרסאות",
         "no_revisions": "אין גרסאות קודמות — הרשומה טרם נערכה.",
         "restore": "שחזור",
