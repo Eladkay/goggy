@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}#{{ tag }} — {{ blog_title }}{% endblock %}
+{% block content %}
+  <h1>{{ t('posts_tagged') }} <span class="tag">#{{ tag }}</span></h1>
+  {% for post in results %}
+    {{ m.post_card(post) }}
+  {% else %}
+    <p class="empty">{{ t('no_posts_tag') }}</p>
+  {% endfor %}
+  <p><a href="/">{{ t('all_posts') }}</a></p>
+{% endblock %}

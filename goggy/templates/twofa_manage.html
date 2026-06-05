@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}{{ t('two_factor') }} — {{ blog_title }}{% endblock %}
+{% block content %}
+  <div class="auth-card twofa">
+    <h1>{{ t('two_factor') }}</h1>
+    <p class="saved">{{ t('twofa_enabled') }}</p>
+    <p class="intro">{{ t('recovery_remaining', n=remaining) }}</p>
+    <form method="post" action="/admin/2fa/recovery"
+          onsubmit="return confirm('{{ t('regenerate_warning') }}');">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button type="submit">{{ t('regenerate_recovery') }}</button>
+    </form>
+  </div>
+{% endblock %}

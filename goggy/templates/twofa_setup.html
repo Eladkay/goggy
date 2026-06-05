@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{{ t('twofa_setup_title') }} — {{ blog_title }}{% endblock %}
+{% block content %}
+  <div class="auth-card twofa">
+    <h1>{{ t('twofa_setup_title') }}</h1>
+    <p class="intro">{{ t('twofa_intro') }}</p>
+
+    <div class="qr">{{ qr_svg | safe }}</div>
+
+    <p class="manual">{{ t('manual_key') }}</p>
+    <code class="secret" id="totp-secret">{{ secret }}</code>
+
+    {% if error %}<p class="error">{{ t(error) }}</p>{% endif %}
+    <form method="post" action="/admin/2fa/setup">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <label for="code">{{ t('enter_code') }}</label>
+      <input type="text" id="code" name="code" inputmode="numeric" autocomplete="one-time-code"
+             pattern="[0-9 ]*" autofocus required dir="ltr">
+      <button type="submit">{{ t('enable_2fa') }}</button>
+    </form>
+  </div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m with context %}
+{% block content %}
+  <section class="hero">
+    <h1 dir="auto">{{ blog_title }}</h1>
+    <p class="tagline" dir="auto">{{ blog_tagline }}</p>
+  </section>
+
+  {% if all_tags %}
+    <div class="tag-cloud">
+      {% for name, count in all_tags %}
+        <a class="tag" href="/tag/{{ name }}">#{{ name }} <span class="tag-count">{{ count }}</span></a>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if not pg.posts %}
+    <p class="empty">{{ t('no_posts') }}{% if is_admin %} <a href="/admin/new">{{ t('write_first') }}</a>{% endif %}</p>
+  {% endif %}
+
+  {% for post in pg.posts %}
+    {{ m.post_card(post) }}
+  {% endfor %}
+
+  {% if pg.total_pages > 1 %}
+    <nav class="pager">
+      {% if pg.has_prev %}<a href="/?page={{ pg.page - 1 }}">{{ t('newer') }}</a>{% else %}<span></span>{% endif %}
+      <span class="pager-pos">{{ t('page_x_of_y', page=pg.page, total=pg.total_pages) }}</span>
+      {% if pg.has_next %}<a href="/?page={{ pg.page + 1 }}">{{ t('older') }}</a>{% else %}<span></span>{% endif %}
+    </nav>
+  {% endif %}
+{% endblock %}

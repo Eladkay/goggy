@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ t('revision_history') }}: {{ post.title }} — {{ blog_title }}{% endblock %}
+{% block content %}
+  <h1>{{ t('revision_history') }}</h1>
+  <p class="meta"><a href="/post/{{ post.slug }}" dir="auto">{{ post.title }}</a></p>
+
+  {% if not revs %}
+    <p class="empty">{{ t('no_revisions') }}</p>
+  {% endif %}
+
+  <ul class="rev-list">
+    {% for rid in revs %}
+      <li class="{{ 'current' if viewing and viewing[0] == rid else '' }}">
+        <a href="/admin/revisions/{{ post.slug }}/{{ rid }}">{{ rid }}</a>
+        <form class="inline" method="post"
+              action="/admin/revisions/{{ post.slug }}/{{ rid }}/restore"
+              onsubmit="return confirm('{{ t('restore_confirm') }}');">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button type="submit" class="linklike">{{ t('restore') }}</button>
+        </form>
+      </li>
+    {% endfor %}
+  </ul>
+
+  {% if viewing %}
+    <hr>
+    <h2>{{ t('preview_of', id=viewing[0]) }}</h2>
+    <h3 dir="auto">{{ viewing[1].title }}</h3>
+    <div class="post-body" dir="auto">{{ viewing[1].html | safe }}</div>
+  {% endif %}
+  <p><a href="/post/{{ post.slug }}">{{ t('back_to_post') }}</a></p>
+{% endblock %}

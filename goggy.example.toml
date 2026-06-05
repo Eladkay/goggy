@@ -1,0 +1,42 @@
+# Goggy global config. Copy to `goggy.toml` and edit.
+#
+# Every key below can also be set via an environment variable named
+# GOGGY_<KEY> (uppercase), which takes priority over this file. This file holds
+# the operational knobs; the blog name / tagline / language / posts-per-page can
+# also be changed live in the admin Settings UI (stored in settings.json), which
+# overrides the defaults here.
+#
+# Keep your real goggy.toml private — it can contain secrets. It is gitignored.
+
+# --- Blog identity (defaults; admin Settings UI overrides these) ---
+title    = "My Blog"
+tagline  = "Thoughts, posts, and ideas."
+footer   = ""
+
+# --- Localization ---
+default_lang = "en"            # "en" or "he"
+
+# --- Security (set these before going live) ---
+# A stable random key; sessions reset on every restart if unset.
+#   python -c "import secrets; print(secrets.token_hex(32))"
+secret_key = ""
+# Admin password — prefer the bcrypt hash. Generate with: goggy hash
+admin_password_hash = ""
+# admin_password = "change-me"   # plaintext alternative (hashed at startup)
+
+# --- Two-factor auth ---
+twofa_issuer  = "Goggy"        # label shown in the authenticator app
+twofa_account = "admin"
+
+# --- Storage paths (relative to project root unless absolute) ---
+# posts_dir     = "posts"
+# uploads_dir   = "uploads"
+# revisions_dir = "revisions"
+# settings_file = "settings.json"
+# twofa_file    = "twofa.json"
+
+# --- Limits ---
+posts_per_page        = 5
+max_upload_bytes      = 8388608   # 8 MiB
+login_max_fails       = 5
+login_lockout_seconds = 300

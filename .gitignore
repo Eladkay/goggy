@@ -1,0 +1,23 @@
+# Goggy data (user content — not source)
+/posts/
+/uploads/
+/revisions/
+/settings.json
+/twofa.json
+/goggy.toml
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Env
+.env
+
+# IDE
+.idea/
+.vscode/

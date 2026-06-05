@@ -1,0 +1,30 @@
+{% macro tag_links(tags) %}
+  {% if tags %}
+    <span class="tags">
+      {% for tg in tags %}<a class="tag" href="/tag/{{ tg }}">#{{ tg }}</a>{% endfor %}
+    </span>
+  {% endif %}
+{% endmacro %}
+
+{% macro badges(post) %}
+  {% if post.draft %}<span class="badge draft">{{ t('draft') }}</span>{% endif %}
+  {% if post.scheduled %}<span class="badge scheduled">{{ t('scheduled') }}</span>{% endif %}
+{% endmacro %}
+
+{% macro post_meta(post) %}
+  <p class="meta">
+    {{ post.publish_at.strftime("%Y-%m-%d") }}
+    · {{ t('min_read', n=post.reading_minutes) }}
+    {{ badges(post) }}
+    {{ tag_links(post.tags) }}
+  </p>
+{% endmacro %}
+
+{% macro post_card(post) %}
+  <article class="post-card">
+    <h2><a href="/post/{{ post.slug }}" dir="auto">{{ post.title }}</a></h2>
+    {{ post_meta(post) }}
+    <div class="excerpt" dir="auto">{{ post.excerpt_html | safe }}</div>
+    <a class="read-more" href="/post/{{ post.slug }}">{{ t('read_more') }}</a>
+  </article>
+{% endmacro %}

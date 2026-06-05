@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}{{ t('search') }} — {{ blog_title }}{% endblock %}
+{% block content %}
+  <h1>{{ t('search') }}</h1>
+  <form class="search-page" method="get" action="/search">
+    <input type="search" name="q" value="{{ q }}" placeholder="{{ t('search_placeholder') }}" autofocus dir="auto">
+    <button type="submit">{{ t('search_button') }}</button>
+  </form>
+
+  {% if q %}
+    <p class="meta">{{ t('results_for', n=results|length, q=q) }}</p>
+    {% for post in results %}
+      {{ m.post_card(post) }}
+    {% else %}
+      <p class="empty">{{ t('no_results') }}</p>
+    {% endfor %}
+  {% endif %}
+{% endblock %}

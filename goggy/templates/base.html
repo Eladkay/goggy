@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}" dir="{{ dir }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>{% block title %}{{ blog_title }}{% endblock %}</title>
+  {% block head %}{% endblock %}
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/pygments.css">
+  <!-- Set theme before first paint to avoid a flash of the wrong mode. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("goggy-theme");
+        if (t) document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/">{{ blog_title }}</a>
+      <form class="search" method="get" action="/search">
+        <input type="search" name="q" placeholder="{{ t('search_placeholder') }}" aria-label="{{ t('search') }}">
+      </form>
+      <nav class="menu">
+        <a href="/">{{ t('home') }}</a>
+        {% if is_admin %}
+          <a href="/admin/new">{{ t('new_post') }}</a>
+          <a href="/admin/settings">{{ t('settings') }}</a>
+          <form class="inline" method="post" action="/logout">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <button type="submit" class="linklike">{{ t('logout') }}</button>
+          </form>
+        {% else %}
+          <a href="/login">{{ t('admin') }}</a>
+        {% endif %}
+        <span class="lang-switch" title="{{ t('language') }}">
+          {% for code, name in languages.items() %}
+            <a href="/lang/{{ code }}" class="{{ 'active' if code == lang else '' }}">{{ name }}</a>
+          {% endfor %}
+        </span>
+        <button type="button" id="theme-toggle" class="linklike" title="{{ t('toggle_theme') }}" aria-label="{{ t('toggle_theme') }}">◐</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>{% if footer_text %}{{ footer_text }}{% else %}{{ blog_title }} — {{ t('powered_by') }}{% endif %}</span>
+    </div>
+  </footer>
+  <script src="/static/theme.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

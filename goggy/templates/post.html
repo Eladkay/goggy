@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}{{ post.title }} — {{ blog_title }}{% endblock %}
+{% block head %}
+  <meta name="description" content="{{ post.title }}">
+{% endblock %}
+{% block content %}
+  <article class="post-full">
+    <h1 dir="auto">{{ post.title }}</h1>
+    {{ m.post_meta(post) }}
+
+    {% if is_admin %}
+      <div class="admin-bar">
+        <a href="/admin/edit/{{ post.slug }}">{{ t('edit') }}</a>
+        <a href="/admin/revisions/{{ post.slug }}">{{ t('history') }}</a>
+        <form class="inline" method="post" action="/admin/delete/{{ post.slug }}"
+              onsubmit="return confirm('{{ t('delete_confirm') }}');">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button type="submit" class="danger">{{ t('delete') }}</button>
+        </form>
+      </div>
+    {% endif %}
+
+    {% if post.toc and "<li" in post.toc %}
+      <details class="toc">
+        <summary>{{ t('contents') }}</summary>
+        {{ post.toc | safe }}
+      </details>
+    {% endif %}
+
+    <div class="post-body" dir="auto">{{ post.html | safe }}</div>
+  </article>
+
+  <nav class="post-nav">
+    {% if newer %}<a class="prev" href="/post/{{ newer.slug }}" dir="auto">{{ newer.title }}</a>{% else %}<span></span>{% endif %}
+    {% if older %}<a class="next" href="/post/{{ older.slug }}" dir="auto">{{ older.title }}</a>{% else %}<span></span>{% endif %}
+  </nav>
+  <p><a href="/">{{ t('back_to_posts') }}</a></p>
+{% endblock %}

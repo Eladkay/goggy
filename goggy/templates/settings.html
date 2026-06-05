@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{{ t('site_settings') }} — {{ blog_title }}{% endblock %}
+{% block content %}
+  <div class="settings">
+    <h1>{{ t('site_settings') }}</h1>
+    {% if saved %}<p class="saved">{{ t('saved') }}</p>{% endif %}
+    <form method="post" action="/admin/settings">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+      <label for="blog_title">{{ t('blog_name') }}</label>
+      <input type="text" id="blog_title" name="blog_title" required dir="auto"
+             value="{{ settings.blog_title }}">
+
+      <label for="blog_tagline">{{ t('tagline') }}</label>
+      <input type="text" id="blog_tagline" name="blog_tagline" dir="auto"
+             value="{{ settings.blog_tagline }}">
+
+      <label for="default_lang">{{ t('default_language') }}</label>
+      <select id="default_lang" name="default_lang">
+        {% for code, name in languages.items() %}
+          <option value="{{ code }}" {{ 'selected' if settings.default_lang == code else '' }}>{{ name }}</option>
+        {% endfor %}
+      </select>
+
+      <label for="posts_per_page">{{ t('posts_per_page') }}</label>
+      <input type="number" id="posts_per_page" name="posts_per_page" min="1" max="100"
+             value="{{ settings.posts_per_page }}">
+
+      <label for="footer_text">{{ t('footer_text') }}</label>
+      <input type="text" id="footer_text" name="footer_text" dir="auto"
+             value="{{ settings.footer_text }}">
+
+      <div class="editor-actions">
+        <button type="submit">{{ t('save') }}</button>
+      </div>
+    </form>
+    <p style="margin-top:24px"><a href="/admin/2fa/setup">{{ t('two_factor') }} →</a></p>
+  </div>
+{% endblock %}
