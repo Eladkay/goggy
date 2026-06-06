@@ -98,6 +98,9 @@ Two layers:
 | `max_upload_bytes` | `GOGGY_MAX_UPLOAD_BYTES` | `8388608` | Max image upload size (8 MiB) |
 | `login_max_fails` | `GOGGY_LOGIN_MAX_FAILS` | `5` | Failed logins per IP before lockout |
 | `login_lockout_seconds` | `GOGGY_LOGIN_LOCKOUT_SECONDS` | `300` | Lockout duration after too many fails |
+| `ssl_certfile` | `GOGGY_SSL_CERTFILE` | *(empty)* | TLS certificate path; `goggy run` serves HTTPS when set (with key) |
+| `ssl_keyfile` | `GOGGY_SSL_KEYFILE` | *(empty)* | TLS private key path |
+| `https_only` | `GOGGY_HTTPS_ONLY` | *(on if cert+key set)* | Mark the session cookie `Secure` (set behind a TLS-terminating proxy) |
 
 The config-file location itself is set only via `GOGGY_CONFIG` (default `./goggy.toml`).
 
