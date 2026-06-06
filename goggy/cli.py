@@ -10,7 +10,14 @@ import sys
 def _run(args: argparse.Namespace) -> None:
     import uvicorn
 
-    uvicorn.run("goggy.main:app", host=args.host, port=args.port, reload=args.reload)
+    uvicorn.run(
+        "goggy.main:app",
+        host=args.host,
+        port=args.port,
+        reload=args.reload,
+        ssl_certfile=args.ssl_certfile or None,
+        ssl_keyfile=args.ssl_keyfile or None,
+    )
 
 
 def _hash(_args: argparse.Namespace) -> None:
@@ -29,10 +36,22 @@ def main() -> None:
     parser = argparse.ArgumentParser(prog="goggy", description="Goggy blog server")
     sub = parser.add_subparsers(dest="cmd")
 
+    from . import config
+
     run = sub.add_parser("run", help="Run the web server")
     run.add_argument("--host", default="127.0.0.1")
     run.add_argument("--port", type=int, default=8000)
     run.add_argument("--reload", action="store_true", help="Auto-reload on changes")
+    run.add_argument(
+        "--ssl-certfile",
+        default=config.SSL_CERTFILE,
+        help="Path to a TLS certificate; serves HTTPS when set (with --ssl-keyfile)",
+    )
+    run.add_argument(
+        "--ssl-keyfile",
+        default=config.SSL_KEYFILE,
+        help="Path to the TLS private key",
+    )
     run.set_defaults(func=_run)
 
     hash_cmd = sub.add_parser("hash", help="Generate an admin password hash")

@@ -24,6 +24,14 @@ secret_key = ""
 admin_password_hash = ""
 # admin_password = "change-me"   # plaintext alternative (hashed at startup)
 
+# --- HTTPS / TLS ---
+# Serve TLS directly: set both to a cert/key pair and `goggy run` listens on
+# HTTPS. Behind a TLS-terminating reverse proxy, leave these blank and set
+# `https_only = true` so the session cookie is still marked Secure.
+# ssl_certfile = "/etc/ssl/certs/blog.crt"
+# ssl_keyfile  = "/etc/ssl/private/blog.key"
+# https_only   = false          # defaults true when a cert + key are set
+
 # --- Two-factor auth ---
 twofa_issuer  = "Goggy"        # label shown in the authenticator app
 twofa_account = "admin"

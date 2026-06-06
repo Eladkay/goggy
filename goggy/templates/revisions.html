@@ -11,7 +11,7 @@
   <ul class="rev-list">
     {% for rid in revs %}
       <li class="{{ 'current' if viewing and viewing[0] == rid else '' }}">
-        <a href="/admin/revisions/{{ post.slug }}/{{ rid }}">{{ rid }}</a>
+        <a href="/admin/revisions/{{ post.slug }}/{{ rid }}" dir="ltr">{{ rid }}</a>
         <form class="inline" method="post"
               action="/admin/revisions/{{ post.slug }}/{{ rid }}/restore"
               onsubmit="return confirm('{{ t('restore_confirm') }}');">

@@ -56,6 +56,10 @@ def _cfg(key: str, default: T, cast: Callable[..., T] = str) -> T:
     return default
 
 
+def _bool(value) -> bool:
+    return str(value).strip().lower() in ("1", "true", "yes", "on")
+
+
 def _path(key: str, default_name: str) -> Path:
     return Path(_cfg(key, BASE_DIR / default_name, Path))
 
@@ -110,6 +114,15 @@ ALLOWED_IMAGE_TYPES = {
     "image/gif": "gif",
     "image/webp": "webp",
 }
+
+# --- HTTPS / TLS -------------------------------------------------------------
+# Serve TLS directly: point `ssl_certfile` + `ssl_keyfile` at a cert/key pair and
+# `goggy run` listens over HTTPS. Behind a TLS-terminating reverse proxy leave
+# these blank and instead set `https_only = true` so the session cookie is still
+# marked Secure. `https_only` defaults on whenever a cert+key are configured.
+SSL_CERTFILE = _cfg("ssl_certfile", "")
+SSL_KEYFILE = _cfg("ssl_keyfile", "")
+HTTPS_ONLY = _cfg("https_only", bool(SSL_CERTFILE and SSL_KEYFILE), _bool)
 
 # --- Session secret ----------------------------------------------------------
 # Must be stable across restarts or every restart logs the admin out.

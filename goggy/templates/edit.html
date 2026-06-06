@@ -3,7 +3,15 @@
 {% block content %}
   <div class="editor" id="editor-root">
     <h1>{{ t('edit_post') if post else t('new_post') }}</h1>
-    <form method="post" action="{{ action }}" id="post-form">
+
+    <div class="restore-bar" id="restore-bar" hidden>
+      <span>{{ t('autosave_found') }}</span>
+      <button type="button" id="restore-draft" class="ghost-btn">{{ t('restore') }}</button>
+      <button type="button" id="discard-draft" class="ghost-btn">{{ t('discard_draft') }}</button>
+    </div>
+
+    <form method="post" action="{{ action }}" id="post-form"
+          data-slug="{{ post.slug if post else 'new' }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
 
       <div class="meta-fields" id="meta-fields">
@@ -19,7 +27,7 @@
           </div>
           <div class="field">
             <label for="publish_at">{{ t('publish_at_label') }}</label>
-            <input type="datetime-local" id="publish_at" name="publish_at"
+            <input type="datetime-local" id="publish_at" name="publish_at" dir="ltr"
                    value="{{ post.publish_at.strftime('%Y-%m-%dT%H:%M') if post else '' }}">
           </div>
           <div class="field check">
@@ -38,6 +46,8 @@
         <button type="button" id="fullscreen-toggle" class="ghost-btn"
                 data-on="{{ t('fullscreen') }}" data-off="{{ t('exit_fullscreen') }}">{{ t('fullscreen') }}</button>
         <span id="upload-status" class="upload-status"></span>
+        <span id="autosave-status" class="autosave-status"
+              data-saved="{{ t('autosave_saved') }}"></span>
       </div>
       <p class="paste-hint">{{ t('paste_hint') }}</p>
 

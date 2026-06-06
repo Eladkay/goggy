@@ -70,12 +70,18 @@
 
   // Keep the textarea and the preview scrolled to the same relative position so
   // the two panes track each other. Proportional (not line-exact) but matches
-  // closely for typical posts. A lock flag prevents the scroll events from
-  // ping-ponging off each other.
+  // closely for typical posts.
+  //
+  // Only the pane the user is actively driving (pointer over it, or focused)
+  // pushes scroll to the other. Without this gate Safari self-scrolls: it
+  // coalesces scroll events and dispatches the programmatic one a frame late —
+  // after a rAF-released lock — so the two panes feed each other in a loop the
+  // user can't stop. activePane breaks the loop regardless of lock timing.
+  let activePane = null;
   let scrollLock = false;
   function linkScroll(src, dst) {
     src.addEventListener("scroll", function () {
-      if (scrollLock) return;
+      if (scrollLock || activePane !== src) return;
       const srcMax = src.scrollHeight - src.clientHeight;
       if (srcMax <= 0) return;
       const dstMax = dst.scrollHeight - dst.clientHeight;
@@ -85,6 +91,10 @@
         scrollLock = false;
       });
     });
+    function claim() { activePane = src; }
+    src.addEventListener("pointerenter", claim);
+    src.addEventListener("focus", claim, true);
+    src.addEventListener("touchstart", claim, { passive: true });
   }
 
   if (body && preview) {
@@ -143,5 +153,92 @@
         fsToggle.click();
       }
     });
+  }
+
+  // --- Autosave (per-device, localStorage) ---------------------------------
+  // Drafts persist on THIS browser so an accidental tab close / crash doesn't
+  // lose work. Not a sync — it won't follow you to another machine, and Save
+  // is still what writes the post. Cleared on submit.
+  const form = document.getElementById("post-form");
+  const titleEl = document.getElementById("title");
+  const tagsEl = document.getElementById("tags");
+  const publishEl = document.getElementById("publish_at");
+  const draftEl = document.getElementById("draft");
+  const saveStatus = document.getElementById("autosave-status");
+  const restoreBar = document.getElementById("restore-bar");
+  const restoreBtn = document.getElementById("restore-draft");
+  const discardBtn = document.getElementById("discard-draft");
+  const autosaveKey = form ? "goggy-autosave:" + (form.dataset.slug || "new") : null;
+
+  function collectDraft() {
+    return {
+      title: titleEl ? titleEl.value : "",
+      tags: tagsEl ? tagsEl.value : "",
+      body: body ? body.value : "",
+      publish_at: publishEl ? publishEl.value : "",
+      draft: draftEl ? draftEl.checked : false,
+      at: Date.now(),
+    };
+  }
+
+  function applyDraft(d) {
+    if (titleEl && typeof d.title === "string") titleEl.value = d.title;
+    if (tagsEl && typeof d.tags === "string") tagsEl.value = d.tags;
+    if (body && typeof d.body === "string") body.value = d.body;
+    if (publishEl && typeof d.publish_at === "string") publishEl.value = d.publish_at;
+    if (draftEl && typeof d.draft === "boolean") draftEl.checked = d.draft;
+    schedulePreview();
+  }
+
+  function saveDraft() {
+    if (!autosaveKey) return;
+    try {
+      localStorage.setItem(autosaveKey, JSON.stringify(collectDraft()));
+      if (saveStatus) saveStatus.textContent = saveStatus.dataset.saved || "";
+    } catch (e) {}
+  }
+
+  function clearDraft() {
+    if (!autosaveKey) return;
+    try { localStorage.removeItem(autosaveKey); } catch (e) {}
+  }
+
+  let saveTimer = null;
+  function scheduleSave() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveDraft, 800);
+  }
+
+  if (autosaveKey) {
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem(autosaveKey)); } catch (e) {}
+
+    // Offer restore only when the stored draft actually differs from what the
+    // server rendered into the form — no banner on every clean load.
+    if (
+      saved &&
+      restoreBar &&
+      (saved.title !== (titleEl ? titleEl.value : "") ||
+        saved.tags !== (tagsEl ? tagsEl.value : "") ||
+        saved.body !== (body ? body.value : "") ||
+        saved.publish_at !== (publishEl ? publishEl.value : "") ||
+        saved.draft !== (draftEl ? draftEl.checked : false))
+    ) {
+      restoreBar.hidden = false;
+      if (restoreBtn) restoreBtn.addEventListener("click", function () {
+        applyDraft(saved);
+        restoreBar.hidden = true;
+      });
+      if (discardBtn) discardBtn.addEventListener("click", function () {
+        clearDraft();
+        restoreBar.hidden = true;
+      });
+    }
+
+    [titleEl, tagsEl, body, publishEl].forEach(function (el) {
+      if (el) el.addEventListener("input", scheduleSave);
+    });
+    if (draftEl) draftEl.addEventListener("change", scheduleSave);
+    if (form) form.addEventListener("submit", clearDraft);
   }
 })();

@@ -32,7 +32,7 @@ app.add_middleware(
     secret_key=config.SECRET_KEY,
     session_cookie=config.SESSION_COOKIE,
     same_site="lax",  # CSRF mitigation for state-changing admin forms
-    https_only=False,
+    https_only=config.HTTPS_ONLY,  # Secure cookie when serving TLS
 )
 
 app.mount("/static", StaticFiles(directory=_PKG_DIR / "static"), name="static")

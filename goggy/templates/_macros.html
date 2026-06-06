@@ -13,7 +13,7 @@
 
 {% macro post_meta(post) %}
   <p class="meta">
-    {{ post.publish_at.strftime("%Y-%m-%d") }}
+    <span dir="ltr">{{ post.publish_at.strftime("%Y-%m-%d") }}</span>
     · {{ t('min_read', n=post.reading_minutes) }}
     {{ badges(post) }}
     {{ tag_links(post.tags) }}
