@@ -145,7 +145,9 @@ label { display: block; font-size: 13px; color: var(--muted); margin: 14px 0 5px
 .autosave-status { color: var(--muted); font-size: 14px; margin-inline-start: auto; }
 .restore-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
   margin: 12px 0; padding: 10px 14px; border: 1px solid var(--border);
-  border-radius: 6px; background: var(--code-bg, rgba(127,127,127,0.08)); }
+  border-radius: 6px; background: var(--card); color: var(--fg); }
+/* display:flex above would otherwise defeat the `hidden` attribute. */
+.restore-bar[hidden] { display: none; }
 .meta-fields.collapsed { display: none; }
 .editor-split { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 6px; }
 /* Both panes are equal-height scroll containers so the text and its preview
