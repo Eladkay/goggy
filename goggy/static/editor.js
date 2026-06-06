@@ -158,7 +158,7 @@
   // --- Autosave (per-device, localStorage) ---------------------------------
   // Drafts persist on THIS browser so an accidental tab close / crash doesn't
   // lose work. Not a sync — it won't follow you to another machine, and Save
-  // is still what writes the post. Cleared on a successful submit.
+  // is still what writes the post. Cleared on submit.
   const form = document.getElementById("post-form");
   const titleEl = document.getElementById("title");
   const tagsEl = document.getElementById("tags");
@@ -215,7 +215,15 @@
 
     // Offer restore only when the stored draft actually differs from what the
     // server rendered into the form — no banner on every clean load.
-    if (saved && restoreBar && saved.body !== (body ? body.value : "")) {
+    if (
+      saved &&
+      restoreBar &&
+      (saved.title !== (titleEl ? titleEl.value : "") ||
+        saved.tags !== (tagsEl ? tagsEl.value : "") ||
+        saved.body !== (body ? body.value : "") ||
+        saved.publish_at !== (publishEl ? publishEl.value : "") ||
+        saved.draft !== (draftEl ? draftEl.checked : false))
+    ) {
       restoreBar.hidden = false;
       if (restoreBtn) restoreBtn.addEventListener("click", function () {
         applyDraft(saved);
