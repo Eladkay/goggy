@@ -92,6 +92,9 @@ Two layers:
 | `posts_dir` | `GOGGY_POSTS_DIR` | `./posts` | Where post `.md` files live |
 | `uploads_dir` | `GOGGY_UPLOADS_DIR` | `./uploads` | Where uploaded images live |
 | `revisions_dir` | `GOGGY_REVISIONS_DIR` | `./revisions` | Where prior post versions are kept |
+| `backups_dir` | `GOGGY_BACKUPS_DIR` | `./backups` | Where auto-backup zips are written |
+| `backup_interval_hours` | `GOGGY_BACKUP_INTERVAL_HOURS` | `24` | Hours between auto-backups; `0` disables |
+| `backup_keep` | `GOGGY_BACKUP_KEEP` | `7` | Most recent snapshots to retain |
 | `settings_file` | `GOGGY_SETTINGS_FILE` | `./settings.json` | Where admin-edited settings persist |
 | `twofa_file` | `GOGGY_TWOFA_FILE` | `./twofa.json` | Where 2FA secret + recovery hashes persist |
 | `posts_per_page` | `GOGGY_POSTS_PER_PAGE` | `5` | Pagination size |

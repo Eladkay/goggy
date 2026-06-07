@@ -98,6 +98,13 @@ UPLOADS_DIR = _data_path("uploads_dir", "uploads")
 # sweeps them up.
 REVISIONS_DIR = _data_path("revisions_dir", "revisions")
 
+# --- Auto-backups ------------------------------------------------------------
+# Snapshot the data dirs to BACKUPS_DIR every BACKUP_INTERVAL_HOURS, keeping
+# BACKUP_KEEP most recent. Set interval to 0 to disable.
+BACKUPS_DIR = _path("backups_dir", "backups")
+BACKUP_INTERVAL_HOURS = _cfg("backup_interval_hours", 24, float)
+BACKUP_KEEP = _cfg("backup_keep", 7, int)
+
 # --- Login rate limiting -----------------------------------------------------
 # Throttle failed admin logins per client IP to slow brute force.
 LOGIN_MAX_FAILS = _cfg("login_max_fails", 5, int)

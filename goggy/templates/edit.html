@@ -19,6 +19,13 @@
         <input type="text" id="title" name="title" required dir="auto"
                value="{{ post.title if post else '' }}">
 
+        <label for="slug">{{ t('slug_label') }}</label>
+        <input type="text" id="slug" name="slug" dir="ltr"
+               value="{{ post.slug if post else '' }}"
+               placeholder="{{ t('slug_placeholder') }}"
+               {{ 'readonly' if post else '' }}>
+        <p class="field-hint">{{ t('slug_immutable_hint') if post else t('slug_hint') }}</p>
+
         <div class="field-row">
           <div class="field">
             <label for="tags">{{ t('tags_label') }}</label>
@@ -39,8 +46,6 @@
       </div>
 
       <div class="editor-toolbar">
-        <label for="image-input" class="upload-btn">{{ t('insert_image') }}</label>
-        <input type="file" id="image-input" accept="image/*" hidden>
         <button type="button" id="meta-toggle" class="ghost-btn"
                 data-hide="{{ t('hide_fields') }}" data-show="{{ t('show_fields') }}">{{ t('hide_fields') }}</button>
         <button type="button" id="fullscreen-toggle" class="ghost-btn"

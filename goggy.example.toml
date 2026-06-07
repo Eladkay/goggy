@@ -40,8 +40,16 @@ twofa_account = "admin"
 # posts_dir     = "posts"
 # uploads_dir   = "uploads"
 # revisions_dir = "revisions"
+# backups_dir   = "backups"
 # settings_file = "settings.json"
 # twofa_file    = "twofa.json"
+
+# --- Auto-backups ---
+# Snapshot posts/uploads/revisions/settings.json/twofa.json every N hours and
+# keep the most recent K. Set hours to 0 to disable. The snapshot includes
+# twofa.json (TOTP secret) — treat backups as sensitive material.
+backup_interval_hours = 24
+backup_keep           = 7
 
 # --- Limits ---
 posts_per_page        = 5

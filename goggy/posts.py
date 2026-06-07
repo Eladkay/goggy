@@ -102,10 +102,11 @@ _WORD = re.compile(r"\w+")
 
 
 def slugify(value: str) -> str:
+    """Lowercase, ASCII-only, dash-joined. Returns '' for empty/punctuation-only
+    input — callers decide the fallback."""
     value = unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode()
     value = _SLUG_STRIP.sub("", value).strip().lower()
-    value = _SLUG_DASH.sub("-", value)
-    return value or "post"
+    return _SLUG_DASH.sub("-", value)
 
 
 def _unique_slug(base: str) -> str:
@@ -281,9 +282,15 @@ def create(
     tags: list[str] | None = None,
     draft: bool = False,
     publish_at: datetime | None = None,
+    slug: str | None = None,
 ) -> Post:
     now = datetime.now().replace(microsecond=0)
-    slug = _unique_slug(slugify(title))
+    # User-provided slug wins; slugify still applies so we never write a path
+    # the user couldn't have typed (no `/`, no `..`, lowercased, dashed).
+    # If the user gave nothing usable, derive from title. If title is also
+    # unrenderable as a slug, settle for "post" as a last-resort base.
+    base = slugify(slug or "") or slugify(title) or "post"
+    slug = _unique_slug(base)
     post = Post(
         slug=slug,
         title=title.strip() or slug,

@@ -190,11 +190,20 @@ select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); borde
 input[type=number] { width: 100%; padding: 10px 12px; border: 1px solid var(--border);
   border-radius: 6px; font: inherit; background: var(--card); color: var(--fg); }
 .settings { max-width: 460px; }
+.about-goggy { margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--border); }
+.about-goggy h2 { font-size: 18px; margin: 0 0 8px; }
+.about-blurb { color: var(--muted); font-size: 14px; margin: 0 0 10px; }
+.version-line { font-size: 14px; color: var(--muted); margin: 0; }
+.version-label { margin-inline-end: 6px; }
+.about-goggy code { background: var(--inline-code-bg); padding: 2px 6px;
+  border-radius: 4px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 .saved { color: #2e7d32; font-weight: 600; }
 .ghost-btn { background: none; border: 1px solid var(--border); color: var(--fg);
   border-radius: 6px; padding: 8px 14px; font-size: 14px; cursor: pointer; }
 .ghost-btn:hover { border-color: var(--accent); color: var(--accent); filter: none; }
 .paste-hint { color: var(--muted); font-size: 13px; margin: 6px 0 0; }
+.field-hint { color: var(--muted); font-size: 12px; margin: 4px 0 0; }
+input[readonly] { background: var(--inline-code-bg); color: var(--muted); cursor: not-allowed; }
 
 /* Two-factor auth */
 .twofa { max-width: 420px; }
@@ -214,17 +223,25 @@ input[type=number] { width: 100%; padding: 10px 12px; border: 1px solid var(--bo
   border-radius: 6px; text-align: center; font-family: ui-monospace, Menlo, monospace; }
 
 /* Fullscreen editor: flex column so the editor/preview split fills the viewport.
-   The big heading is hidden and meta fields collapse (via JS) to maximize space. */
-.editor.fullscreen { position: fixed; inset: 0; z-index: 1000; margin: 0; padding: 16px 22px;
+   The big heading is hidden and meta fields collapse (via JS) to maximize space.
+   `width: 100vw` is belt-and-suspenders alongside `inset: 0` in case a future
+   ancestor (transform, filter, contain) creates a containing block for fixed. */
+.editor.fullscreen { position: fixed; inset: 0; width: 100vw; height: 100vh;
+  z-index: 1000; margin: 0; padding: 10px 14px;
   background: var(--bg); overflow: hidden; max-width: none;
   display: flex; flex-direction: column; }
 body.editor-fullscreen { overflow: hidden; }
 .editor.fullscreen > h1 { display: none; }
-.editor.fullscreen form { flex: 1; display: flex; flex-direction: column; min-height: 0; }
-.editor.fullscreen .editor-split { flex: 1; min-height: 0; }
+.editor.fullscreen form { flex: 1; display: flex; flex-direction: column;
+  min-height: 0; width: 100%; }
+/* `minmax(0, 1fr)` defeats the implicit `minmax(auto, 1fr)` track sizing —
+   without it, wide code blocks in the preview or the textarea's intrinsic
+   `cols` width can inflate a track and shrink the other. */
+.editor.fullscreen .editor-split { flex: 1; min-height: 0; width: 100%;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
 .editor.fullscreen .editor-pane textarea,
 .editor.fullscreen .preview-pane .post-body { height: auto; flex: 1; min-height: 0; }
-.editor.fullscreen .editor-actions { margin-top: 12px; }
+.editor.fullscreen .editor-actions { margin-top: 10px; }
 
 /* RTL: keep code blocks LTR; flip directional borders/spacing via logical props */
 .post-body pre, .post-body code, .codehilite { direction: ltr; text-align: left; }

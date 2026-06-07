@@ -3,7 +3,6 @@
 (function () {
   const body = document.getElementById("body");
   const preview = document.getElementById("preview");
-  const imageInput = document.getElementById("image-input");
   const uploadStatus = document.getElementById("upload-status");
   const fsToggle = document.getElementById("fullscreen-toggle");
   const metaToggle = document.getElementById("meta-toggle");
@@ -12,19 +11,38 @@
   const csrf = document.querySelector('meta[name="csrf-token"]').content;
 
   let timer = null;
+  // For a long post the server render exceeds the debounce, so without
+  // cancellation each keystroke spawns another fetch and each returning
+  // response synchronously runs `innerHTML =` — stacking main-thread blocks
+  // that show up as typing lag. Abort the previous request before starting a
+  // new one, and skip the round-trip entirely if the body hasn't changed.
+  let currentController = null;
+  let lastRenderedBody = null;
 
   async function renderPreview() {
+    const text = body.value;
+    if (text === lastRenderedBody) return;
+    if (currentController) currentController.abort();
+    const ctrl = new AbortController();
+    currentController = ctrl;
     const data = new FormData();
-    data.append("body", body.value);
+    data.append("body", text);
     try {
       const res = await fetch("/admin/preview", {
         method: "POST",
         headers: { "X-CSRF-Token": csrf },
         body: data,
+        signal: ctrl.signal,
       });
-      preview.innerHTML = await res.text();
+      const html = await res.text();
+      if (ctrl.signal.aborted) return;
+      preview.innerHTML = html;
+      lastRenderedBody = text;
     } catch (e) {
+      if (e.name === "AbortError") return;
       preview.textContent = "Preview unavailable.";
+    } finally {
+      if (currentController === ctrl) currentController = null;
     }
   }
 
@@ -42,8 +60,15 @@
     schedulePreview();
   }
 
-  // Shared upload used by the button and by paste. Inserts an image at the
-  // cursor on success so the writer can place images anywhere in the post.
+  // Insert as an <img> tag (not the `![]()` Markdown form) so the writer can
+  // tweak width/height in place — Markdown image syntax has no width hook, but
+  // the sanitizer keeps `width` and `height` on <img>, so authors can resize
+  // by editing the attribute (e.g. width="400") right in the source.
+  function escAttr(s) {
+    return String(s)
+      .replace(/&/g, "&amp;").replace(/"/g, "&quot;")
+      .replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
   async function uploadAndInsert(file) {
     uploadStatus.textContent = "…";
     const data = new FormData();
@@ -60,8 +85,8 @@
         return;
       }
       const { url } = await res.json();
-      const alt = (file.name || "image").replace(/\]/g, "");
-      insertAtCursor(`\n![${alt}](${url})\n`);
+      const alt = file.name || "image";
+      insertAtCursor(`\n<img src="${escAttr(url)}" alt="${escAttr(alt)}">\n`);
       uploadStatus.textContent = "✓";
     } catch (e) {
       uploadStatus.textContent = "Upload failed.";
@@ -116,14 +141,6 @@
           }
         }
       }
-    });
-  }
-
-  if (imageInput) {
-    imageInput.addEventListener("change", function () {
-      const file = imageInput.files[0];
-      if (file) uploadAndInsert(file);
-      imageInput.value = "";
     });
   }
 
@@ -190,10 +207,25 @@
     schedulePreview();
   }
 
+  // JSON.stringify of a long body every 800ms regardless of change is a
+  // measurable cost in long-editing sessions; bail when nothing has changed.
+  let lastSaved = null;
+  function draftsEqual(a, b) {
+    return !!a && !!b
+      && a.title === b.title
+      && a.tags === b.tags
+      && a.body === b.body
+      && a.publish_at === b.publish_at
+      && a.draft === b.draft;
+  }
+
   function saveDraft() {
     if (!autosaveKey) return;
+    const d = collectDraft();
+    if (draftsEqual(lastSaved, d)) return;
     try {
-      localStorage.setItem(autosaveKey, JSON.stringify(collectDraft()));
+      localStorage.setItem(autosaveKey, JSON.stringify(d));
+      lastSaved = d;
       if (saveStatus) saveStatus.textContent = saveStatus.dataset.saved || "";
     } catch (e) {}
   }

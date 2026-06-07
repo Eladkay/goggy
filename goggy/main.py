@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import io
 import zipfile
+from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
 
@@ -22,11 +23,21 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 
-from . import auth, config, i18n, posts, ratelimit, settings, twofa, uploads
+from . import __version__, auth, backup, config, i18n, posts, ratelimit, settings, twofa, uploads
 
 _PKG_DIR = Path(__file__).resolve().parent
 
-app = FastAPI(title=config.BLOG_TITLE)
+
+@asynccontextmanager
+async def _lifespan(app: FastAPI):
+    backup.start()
+    try:
+        yield
+    finally:
+        await backup.stop()
+
+
+app = FastAPI(title=config.BLOG_TITLE, lifespan=_lifespan)
 app.add_middleware(
     SessionMiddleware,
     secret_key=config.SECRET_KEY,
@@ -301,9 +312,11 @@ def new_post_submit(
     tags: str = Form(""),
     draft: bool = Form(False),
     publish_at: str = Form(""),
+    slug: str = Form(""),
 ):
     post = posts.create(
-        title, body, tags=_parse_tags(tags), draft=draft, publish_at=_parse_publish_at(publish_at)
+        title, body, tags=_parse_tags(tags), draft=draft,
+        publish_at=_parse_publish_at(publish_at), slug=slug,
     )
     return RedirectResponse(f"/post/{post.slug}", status_code=status.HTTP_303_SEE_OTHER)
 
@@ -432,7 +445,7 @@ def settings_form(request: Request, saved: bool = False):
     return templates.TemplateResponse(
         request,
         "settings.html",
-        _ctx(request, settings=settings.all(), saved=saved),
+        _ctx(request, settings=settings.all(), saved=saved, goggy_version=__version__),
     )
 
 
